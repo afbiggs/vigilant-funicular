@@ -10,6 +10,7 @@ var todayContainer = document.querySelector('#today');
 var forecastContainer = document.querySelector('#forecast');
 var searchHistoryContainer = document.querySelector('#history');
 
+
 // Fetches weather data for given location from the Weather Geolocation
 // endpoint; then, calls functions to display current and forecast weather data.
 //location argument is an object {
@@ -20,8 +21,33 @@ var searchHistoryContainer = document.querySelector('#history');
 dayjs.extend(window.dayjs_plugin_utc);
 dayjs.extend(window.dayjs_plugin_timezone);
 
+function renderSearchHistory() {
+  searchHistoryContainer.innerHTML = '';
+
+  for (var i = searchHistory.length - 1; i >= 0; i--) {
+    var btn = document.createElement('button');
+    btn.setAttribute('type', 'button');
+    btn.setAttribute('aria-controls', 'today-forecast');
+    btn.classList.add('history-btn', 'btn-history');
+
+    btn.setAttribute('data-search', searchHistory[i]);
+    btn.textContent = searchHistory[i];
+    searchHistoryContainer.append(btn);
+  }
+}
+
+function appendToHistory(search) {
+
+  if (searchHistory.indexOf !== -1) {
+    return;
+  }
+  searchHistory.push(search);
+  localStorage.setItem('search-history', JSON.stringify(searchHistory));
+  renderSearchHistory();
+}
+
 function renderItems(city, data) {
-  // renderCurrentWeather(city, data.current, data.timezone);
+//   renderCurrentWeather(city, data.current, data.timezone);
   renderForecast(data.daily, data.timezone);
 }
 
@@ -30,7 +56,9 @@ function fetchWeather(location) {
  	var { lat } = location;
   	var { lon } = location;
   	var city = location.name;
- 	var apiUrl = `${weatherApiRootUrl}/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly&appid=${weatherApiKey}`;
+ 	var apiUrl =`${weatherApiRootUrl}/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly&appid=${weatherApiKey}`;
+    
+
 
 
  	fetch(apiUrl)
@@ -45,7 +73,7 @@ function fetchWeather(location) {
 	    .then(
 	    	function (data) {
 
-	    	console.log("DATA", data)
+	    	console.log(data)
       		renderItems(city, data);
 
 
@@ -56,6 +84,10 @@ function fetchWeather(location) {
     	});
 
 }
+
+// function fetchCoords(search) {
+//     var apiUrl = ${weatherApiRootUrl}
+// }
 
 // Function to display 5 day forecast.
 function renderForecast(dailyForecast, timezone) {
